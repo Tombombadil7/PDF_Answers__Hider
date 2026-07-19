@@ -167,8 +167,8 @@ class PdfEnhancedFileWriter(PdfWriter):
                 _operations.append((operands, operator))
 
             content.operations = _operations
-            pageRef.__setitem__(NameObject('/Contents'), content)
-
+            content_ref = self._add_object(content)
+            pageRef[NameObject('/Contents')] = content_ref
 root = Tk()
 root.title('Answers Remover 2.0')
 #root.iconbitmap( resource_path('./icon.ico'))
