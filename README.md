@@ -13,9 +13,10 @@ Take a look
 
 
 ## Instructions
-1. download the .py file and run it on your python interperter OR just download the EXE file which made of the same script.
+1. download the .py file and run it on your python interperter OR just download the EXE file which made of the same script and can be found here:
+   [PDF_Answers_Hider_2.0.exe](https://github.com/Tombombadil7/PDF_Answers__Hider/releases/latest)
 if your windows warn you about it, click "more info" and then allow it to run.
-2. choose a pdf file with answers marked on it, then choose where to locate the "clean" pdf and let it run.
+3. choose a pdf file with answers marked on it, then choose where to locate the "clean" pdf and let it run.
 
 ## MacOs / Linux users:
 1. The exe file won't work for you.
