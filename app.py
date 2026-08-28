@@ -19,6 +19,36 @@ from pdf_cleaner import HAS_FITZ, process_pdf_bytes
 
 st.set_page_config(page_title="Answers Remover", page_icon="📄", layout="centered")
 
+# 1. הגדרת כיוון RTL גלובלי לכל האפליקציה (CSS)
+st.markdown(
+    """
+    <style>
+    .stApp {
+        direction: rtl;
+        text-align: right;
+    }
+    /* אילוץ כיווניות לימין עבור אלמנטים פנימיים כדי למנוע קפיצות טקסט */
+    p, div, span, h1, h2, h3, h4, h5, h6, label {
+        direction: rtl;
+        text-align: right !important;
+    }
+    .stButton>button, .stDownloadButton>button {
+        direction: rtl;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# 2. פונקציית עזר לבידוד דו-כיווני (bidi isolation)
+def bidi_isolate(text):
+    """
+    עוטף טקסט דינמי בתווי יוניקוד FSI ו-PDI.
+    מונע מהאלגוריתם הדו-כיווני לבלבל את סדר התווים במשפטים המערבים אנגלית ועברית.
+    """
+    return f"\u2068{text}\u2069"
+
+
 st.title("📄 Answers Remover")
 st.caption("הסרת הדגשות/תשובות מקבצי PDF ובניית עמוד סיכום עם התשובות שהוסרו")
 
@@ -53,7 +83,9 @@ if process_clicked and uploaded_files:
     total = len(uploaded_files)
 
     for i, uploaded_file in enumerate(uploaded_files):
-        status_callback(f"מעבד קובץ {i + 1} מתוך {total}: {uploaded_file.name}")
+        # שימוש בבידוד לתצוגת שם הקובץ הדינמי
+        isolated_filename = bidi_isolate(uploaded_file.name)
+        status_callback(f"מעבד קובץ {i + 1} מתוך {total}: {isolated_filename}")
 
         # fitz צריך לקרוא מנתיב בדיסק, ולכן שומרים את הקובץ שהועלה זמנית
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
@@ -69,7 +101,9 @@ if process_clicked and uploaded_files:
             output_name = "SCRAPED_" + uploaded_file.name
             results.append((output_name, output_bytes))
         except Exception as e:
-            st.error(f"שגיאה בעיבוד הקובץ {uploaded_file.name}: {e}")
+            # שימוש בבידוד גם לשגיאות ולשם הקובץ במקרה של שגיאה
+            isolated_error = bidi_isolate(str(e))
+            st.error(f"שגיאה בעיבוד הקובץ {isolated_filename}: {isolated_error}")
         finally:
             os.remove(tmp_path)
 
@@ -83,10 +117,11 @@ if process_clicked and uploaded_files:
 
         # הורדה בודדת לכל קובץ
         for output_name, output_bytes in results:
+            isolated_out_name = bidi_isolate(output_name)
             st.download_button(
-                label=f"⬇️ הורד {output_name}",
+                label=f"⬇️ הורד {isolated_out_name}",
                 data=output_bytes,
-                file_name=output_name,
+                file_name=output_name, # נשמר ללא תווי היוניקוד כדי לא לשבש את השם בדיסק
                 mime="application/pdf",
                 key=output_name,
             )
